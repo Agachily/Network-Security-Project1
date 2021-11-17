@@ -6,6 +6,8 @@ import com.ticketapp.auth.app.ulctools.Commands;
 import com.ticketapp.auth.app.ulctools.Utilities;
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * TODO:
@@ -32,6 +34,7 @@ public class Ticket {
     private final Boolean isValid = false;
     private final int remainingUses = 0;
     private final int expiryTime = 0;
+    private String masterKey = "Hack me if you can";
 
     private static String infoToShow = "-"; // Use this to show messages
 
@@ -143,6 +146,52 @@ public class Ticket {
         int validationTime = getValidationTime();
         return (validationTime >= (currentTime-beginTime));
     }
+    public void setProtectedRange() {
+        byte[] message = new byte[4];
+        message[0] = 20;
+        message[1] = 0;
+        message[2] = 0;
+        message[3] = 0;
+        utils.writePages(message, 0, 42, 1);
+    }
+
+    /** Get the uid from page 1 */
+    public String getUID(){
+        byte[] message1 = new byte[4];
+        byte[] message2 = new byte[4];
+        byte[] result = new byte[7];
+        utils.readPages(0, 1, message1, 0);
+        utils.readPages(1, 1, message2, 0);
+        for(int i = 0; i<3; i++){
+            result[i] = message1[i];
+            result[i+4] = message2[i];
+        }
+        result[6] = message2[3];
+        String UID = new String(result);
+        return UID;
+    }
+
+    /** Get the hashcode according to the UID and master key */
+    public byte[] getHash() {
+        String UID = getUID();
+        String passwordToHash = new String(authenticationKey) + UID;
+        byte[] res = new byte[16];
+        try {
+            // 为MD5创建MessageDigest实例
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            //添加密码字节以进行
+            md.update(passwordToHash.getBytes());
+            //Get the hash's bytes
+            res = md.digest();
+            //This bytes[] has bytes in decimal format;
+
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+        return  res;
+    }
 
     /**
      * Issue new tickets
@@ -153,37 +202,39 @@ public class Ticket {
         boolean res;
         String message = "";
         int ridesNumber = getRidesNumber();
+        byte[] hash = getHash();
 
-        // Authenticate
-        res = utils.authenticate(authenticationKey);
+
+        res = utils.authenticate(hash);
         if (!res) {
             Utilities.log("Authentication failed in issue()", true);
             infoToShow = "Authentication failed";
             return false;
         }
+        utils.writePages(hash, 0, 44, 4);
 
-        // Initialize the card if the rides number is 0 and is not within the validated time
-        if (!checkValidationTime() || (ridesNumber == 0)){
-            message = "The card has been initialized";
-            writeRidesNumber(5);
-            writeValidationTime(120);
-        } else {
-            message = "5 more rides have been added";
-            writeRidesNumber(ridesNumber+5);
-        }
 
-//        writeValidationTime(0);
-//        writeRidesNumber(0);
+//        if (!checkValidationTime() || (ridesNumber == 0)){
+//            message = "The card has been initialized";
+//            setProtectedRange();
+//            writeRidesNumber(5);
+//            writeValidationTime(120);
+//        } else {
+//            message = "5 more rides have been added";
+//            writeRidesNumber(ridesNumber+5);
+//        }
 
+
+        infoToShow = "message";
         // Example of writing:
         //byte[] message = "info".getBytes();
         //res = utils.writePages(message, 0, 6, 1);
         // Set information to show for the user
-        if (res) {
-            infoToShow = message;
-        } else {
-            infoToShow = "Failed to write";
-        }
+//        if (res) {
+//            infoToShow = message;
+//        } else {
+//            infoToShow = "Failed to write";
+//        }
 
         return true;
     }
