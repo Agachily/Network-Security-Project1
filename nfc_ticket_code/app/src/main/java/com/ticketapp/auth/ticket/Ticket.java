@@ -65,6 +65,85 @@ public class Ticket {
         return infoToShow;
     }
 
+    /** Convert  byteArray to int*/
+    public static int byteArrayToInt(byte[] b) {
+        return b[3] & 0xFF |
+                (b[2] & 0xFF) << 8 |
+                (b[1] & 0xFF) << 16 |
+                (b[0] & 0xFF) << 24;
+    }
+
+    /** Convert  int to ByteArray*/
+    public static byte[] intToByteArray(int a) {
+        return new byte[] {
+                (byte) ((a >> 24) & 0xFF),
+                (byte) ((a >> 16) & 0xFF),
+                (byte) ((a >> 8) & 0xFF),
+                (byte) (a & 0xFF)
+        };
+    }
+
+    /** Set number of rides to page 4*/
+    public boolean writeRidesNumber(int number){
+        boolean result;
+        byte[] message = intToByteArray(number);
+        result = utils.writePages(message, 0, 4, 1);
+        return result;
+    }
+
+    /** Get rides number from page 4 */
+    public int getRidesNumber(){
+        byte[] message = new byte[4];
+        utils.readPages(4, 1, message, 0);
+        int number = byteArrayToInt(message);
+        return number;
+    }
+
+
+    /** Set validity time to page 5*/
+    public boolean writeValidationTime(int sec) {
+        boolean result;
+        byte[] message = intToByteArray(sec);
+        result = utils.writePages(message, 0, 5, 1);
+        return result;
+    }
+
+    /** Get the validation time from page 5*/
+    public int getValidationTime(){
+        byte[] message = new byte[4];
+        utils.readPages(5, 1, message, 0);
+        int time = byteArrayToInt(message);
+        return time;
+    }
+
+
+
+    /** Write begin time to page 6 */
+    public boolean writeBeginTime() {
+        boolean result;
+        int time = (int)(System.currentTimeMillis()/1000);
+        byte[] message = intToByteArray(time);
+        result = utils.writePages(message, 0, 6, 1);
+        return result;
+    }
+
+    /** Get begin time from page 6 */
+    public int getBeginTime() {
+        byte[] message = new byte[4];
+        utils.readPages(6, 1, message, 0);
+        int time = byteArrayToInt(message);
+        return time;
+    }
+
+    /** Judge whether the card is within validated time */
+    public boolean checkValidationTime(){
+        /** Get the current time */
+        int currentTime = (int)(System.currentTimeMillis()/1000);
+        int beginTime = getBeginTime();
+        int validationTime = getValidationTime();
+        return (validationTime >= (currentTime-beginTime));
+    }
+
     /**
      * Issue new tickets
      *
@@ -72,6 +151,8 @@ public class Ticket {
      */
     public boolean issue(int daysValid, int uses) throws GeneralSecurityException {
         boolean res;
+        String message = "";
+        int ridesNumber = getRidesNumber();
 
         // Authenticate
         res = utils.authenticate(authenticationKey);
@@ -81,13 +162,25 @@ public class Ticket {
             return false;
         }
 
-        // Example of writing:
-        byte[] message = "info".getBytes();
-        res = utils.writePages(message, 0, 6, 1);
+        // Initialize the card if the rides number is 0 and is not within the validated time
+        if (!checkValidationTime() || (ridesNumber == 0)){
+            message = "The card has been initialized";
+            writeRidesNumber(5);
+            writeValidationTime(120);
+        } else {
+            message = "5 more rides have been added";
+            writeRidesNumber(ridesNumber+5);
+        }
 
+//        writeValidationTime(0);
+//        writeRidesNumber(0);
+
+        // Example of writing:
+        //byte[] message = "info".getBytes();
+        //res = utils.writePages(message, 0, 6, 1);
         // Set information to show for the user
         if (res) {
-            infoToShow = "Wrote: " + new String(message);
+            infoToShow = message;
         } else {
             infoToShow = "Failed to write";
         }
@@ -102,7 +195,7 @@ public class Ticket {
      */
     public boolean use() throws GeneralSecurityException {
         boolean res;
-
+        int ridesNumber = getRidesNumber();
         // Authenticate
         res = utils.authenticate(authenticationKey);
         if (!res) {
@@ -111,13 +204,28 @@ public class Ticket {
             return false;
         }
 
-        // Example of reading:
-        byte[] message = new byte[4];
-        res = utils.readPages(6, 1, message, 0);
+        if (ridesNumber == 5){
+            writeRidesNumber(ridesNumber-1);
+            writeBeginTime();
+        } else if (ridesNumber == 0) {
+            infoToShow = "There is no more rides!";
+            return false;
+        } else {
+            if (checkValidationTime()){
+                writeRidesNumber(ridesNumber-1);
+            } else {
+                infoToShow = "You card is expired";
+                return false;
+            }
+        }
+
+//        // Example of reading:
+//        byte[] message = new byte[4];
+//        res = utils.readPages(6, 1, message, 0);
 
         // Set information to show for the user
         if (res) {
-            infoToShow = "Read: " + new String(message);
+            infoToShow = "Read: success!";
         } else {
             infoToShow = "Failed to read";
         }

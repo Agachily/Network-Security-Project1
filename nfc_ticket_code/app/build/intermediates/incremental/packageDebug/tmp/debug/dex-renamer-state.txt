@@ -1,0 +1,4 @@
+#Wed Nov 17 20:38:17 EET 2021
+base.0=/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/build/intermediates/dex/debug/mergeDexDebug/out/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex
