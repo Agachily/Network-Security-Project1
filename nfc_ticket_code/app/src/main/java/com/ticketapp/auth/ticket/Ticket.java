@@ -88,18 +88,20 @@ public class Ticket {
         };
     }
 
-    /** Set number of rides to page 4*/
-    public boolean writeRidesNumber(int number){
+    /** Set aax number of rides to specific page */
+    public boolean writeMaxRidesNumber(int number){
         boolean result;
         byte[] message = intToByteArray(number);
         result = utils.writePages(message, 0, 4, 1);
+
         return result;
     }
 
-    /** Get rides number from page 4 */
-    public int getRidesNumber(){
+    /** Get rides number from specific page */
+    public int getMaxRidesNumber(){
         byte[] message = new byte[4];
         utils.readPages(4, 1, message, 0);
+
         int number = byteArrayToInt(message);
         return number;
     }
@@ -110,6 +112,7 @@ public class Ticket {
         boolean result;
         byte[] message = intToByteArray(sec);
         result = utils.writePages(message, 0, 5, 1);
+
         return result;
     }
 
@@ -117,23 +120,29 @@ public class Ticket {
     public int getValidationTime(){
         byte[] message = new byte[4];
         utils.readPages(5, 1, message, 0);
+
         int time = byteArrayToInt(message);
         return time;
     }
 
+
     /** Write begin time to page 6 */
-    public boolean writeBeginTime() {
+    public boolean writeBeginTime(int time) {
         boolean result;
-        int time = (int)(System.currentTimeMillis()/1000);
+
         byte[] message = intToByteArray(time);
+
         result = utils.writePages(message, 0, 6, 1);
+
         return result;
     }
 
     /** Get begin time from page 6 */
     public int getBeginTime() {
         byte[] message = new byte[4];
+
         utils.readPages(6, 1, message, 0);
+
         int time = byteArrayToInt(message);
         return time;
     }
@@ -142,49 +151,65 @@ public class Ticket {
     public boolean writeVersionNumber(int versionNumber) {
         boolean result;
         byte[] message = intToByteArray(versionNumber);
+
         result = utils.writePages(message, 0, 7, 1);
+
         return result;
     }
 
-    /** Get begin time from page 6 */
+    /** Get VersionNumber from page 7 */
     public int getVersionNumber() {
         byte[] message = new byte[4];
+
         utils.readPages(7, 1, message, 0);
+
         int versionNumber = byteArrayToInt(message);
         return versionNumber;
     }
 
-    /** Set the hash mac to page 8 */
-    public boolean writeHashMac(String beginTime){
+    /** Calculate hash mac */
+    public byte[] CalculateHashMac(String beginTime, int expectedCounter) {
         // get hash value with length 42
         String UID = getUID();
         int validationTime = getValidationTime();
-        byte[] bytesArray = (UID + validationTime + beginTime).getBytes();
+        int maxRidesNumber = getMaxRidesNumber();
+        byte[] bytesArray = (UID + validationTime + beginTime + maxRidesNumber + expectedCounter).getBytes();
         byte[] cont = macAlgorithm.generateMac(bytesArray);
         // get the first 4
         byte[] hashMac = new byte[4];
         for(int i = 0; i<4; i++){
             hashMac[i] = cont[i];
         }
+        return hashMac;
+    }
+    /** Set the hash mac to page 8 */
+    public boolean writeHashMac(String beginTime, int expectedCounter ,boolean flag){
+        // get hashmac
+        byte[] hashMac = CalculateHashMac(beginTime, expectedCounter);
+
         // write to page 8
         boolean result;
-        result = utils.writePages(hashMac, 0, 8, 1);
+        if(flag) {
+            result = utils.writePages(hashMac, 0, 8, 1);
+        } else {
+            result = utils.writePages(hashMac, 0, 18, 1);
+        }
         return result;
     }
 
     /** Get the hash value from page 8 */
-    public boolean checkHashMac(String beginTime){
+    public boolean checkHashMac(String beginTime,int expectedCounter, boolean flag){
         // Get the hash mac in the card
         byte[] hashMacInCard = new byte[4];
-        utils.readPages(8, 1, hashMacInCard, 0);
-        // Calculate hash mac
-        String UID = getUID();
-        int validationTime = getValidationTime();
-        byte[] bytesArray = (UID + validationTime + beginTime).getBytes();
-        byte[] cont = macAlgorithm.generateMac(bytesArray);
-        // get the first 4
+        if(flag) {
+            utils.readPages(8, 1, hashMacInCard, 0);
+        } else {
+            utils.readPages(18, 1, hashMacInCard, 0);
+        }
+        byte[] hashMac = CalculateHashMac(beginTime, expectedCounter);
+        // compare the hashmac between calculated and card hashmac
         for(int i = 0; i<4; i++){
-            if(hashMacInCard[i] != cont[i]){
+            if(hashMacInCard[i] != hashMac[i]){
                 return false;
             }
         }
@@ -224,6 +249,29 @@ public class Ticket {
         return UID;
     }
 
+    /** Increase the counter */
+    public boolean increaseCounter(){
+        byte[] message = new byte[4];
+        message[0] = 1;
+        message[1] = 0;
+        message[2] = 0;
+        message[3] = 0;
+        boolean res = utils.writePages(message, 0, 41, 1);
+        return res;
+    }
+
+    /** */
+    public int getCounter() {
+        byte[] message = new byte[4];
+        utils.readPages(41, 1, message, 0);
+        byte[] reverseMessage = new byte[4];
+        for(int i = 0; i < 4; i++)
+        {
+            reverseMessage[i] = message[3 - i];
+        }
+        return byteArrayToInt(reverseMessage);
+    }
+
     /** Get the hashcode according to the UID and master key */
     public byte[] getHash() {
         String UID = getUID();
@@ -251,15 +299,14 @@ public class Ticket {
      */
     public boolean issue(int daysValid, int uses) throws GeneralSecurityException {
         boolean res;
+        boolean flag = true;
         String message = "--";
-        int ridesNumber = getRidesNumber();
         byte[] passHash = getHash();
-        int versionNUmber = getVersionNumber();
-
 
         /** Judge whether the card is blank and authentication*/
-        if(versionNUmber == 0){
-            if(utils.authenticate(defaultAuthenticationKey)){
+        if(utils.authenticate(defaultAuthenticationKey)){
+            int versionNumber = getVersionNumber();
+            if(versionNumber == 0){
                 utils.writePages(passHash, 0, 44, 4);
                 setProtectedRange();
                 writeVersionNumber(5);
@@ -274,24 +321,24 @@ public class Ticket {
                 return false;
             }
         }
+
+        int maxRidesNumber = getMaxRidesNumber();
+        int counter = getCounter();
+
         /** Initialize the card */
-        if (!checkValidationTime() || (ridesNumber == 0)){
-            writeRidesNumber(5);
+        if (!checkValidationTime() || (maxRidesNumber == counter)){
+            writeMaxRidesNumber(maxRidesNumber + 5);
             writeValidationTime(120);
 
-            writeHashMac("");
+            writeHashMac("", counter, flag);
             message = "The card has been initialized";
-        } else { // add 5 rides number
-            writeRidesNumber(ridesNumber+5);
+        } else { // add 5 more rides number
+            int beginTime = getBeginTime();
+            writeMaxRidesNumber(maxRidesNumber + 5);
+            writeHashMac(beginTime+"", counter, flag);
             message = "5 more rides have been added";
         }
 
-//        byte[] passHash = getHash();
-//        utils.authenticate(passHash);
-//        writeHashMac("");
-//        if(checkHashMac("")){
-//            message = "Hash mac check success";
-//        }
 
         infoToShow = message;
         return true;
@@ -304,10 +351,13 @@ public class Ticket {
      */
     public boolean use() throws GeneralSecurityException {
         boolean res;
+        boolean flag = true;
         String message = "--";
-        int ridesNumber = getRidesNumber();
+        int maxRidesNumber = getMaxRidesNumber();
         byte[] passHash = getHash();
         int beginTime = getBeginTime();
+
+
         // Authenticate
         res = utils.authenticate(passHash);
         if (!res) {
@@ -315,17 +365,23 @@ public class Ticket {
             infoToShow = "Authentication failed";
             return false;
         }
-
-        if (checkHashMac(""))
+        
+        int counter = getCounter();
+        if(counter%2 != 0) {flag = false;}
+        if (checkHashMac("", counter, flag))
         {
-            writeRidesNumber(ridesNumber-1);
-            writeBeginTime();
-            int beginTime2 = getBeginTime();
-            writeHashMac(beginTime2+"");
-        } else if(checkHashMac(beginTime+"")) {
+            int expectedBeginTime = (int)(System.currentTimeMillis()/1000);
+            writeBeginTime(expectedBeginTime);
+            writeHashMac(expectedBeginTime+"",counter + 1, !flag);
+            increaseCounter();
+            message = "Remain: 5";
+        } else if(checkHashMac(beginTime+"", counter, flag)) {
             if (checkValidationTime()) {
-                if(ridesNumber > 0) {
-                    writeRidesNumber(ridesNumber-1);
+                counter = getCounter();
+                if(maxRidesNumber > counter) {
+                    message = "Remain: " + (maxRidesNumber - counter);
+                    writeHashMac(beginTime+"",counter + 1, !flag);
+                    increaseCounter();
                 } else  {
                     infoToShow = "There is no more rides";
                     return false;
@@ -336,20 +392,6 @@ public class Ticket {
             }
         }
 
-//        if (ridesNumber == 5){
-//            writeRidesNumber(ridesNumber-1);
-//            writeBeginTime();
-//        } else if (ridesNumber == 0) {
-//            infoToShow = "There is no more rides!";
-//            return false;
-//        } else {
-//            if (checkValidationTime()){
-//                writeRidesNumber(ridesNumber-1);
-//            } else {
-//                infoToShow = "You card is expired";
-//                return false;
-//            }
-//        }
 
         infoToShow = message;
 
