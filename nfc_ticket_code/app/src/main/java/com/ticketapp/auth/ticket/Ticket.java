@@ -226,7 +226,7 @@ public class Ticket {
     }
     public void setProtectedRange() {
         byte[] message = new byte[4];
-        message[0] = 30;
+        message[0] = 48;
         message[1] = 0;
         message[2] = 0;
         message[3] = 0;
@@ -292,6 +292,31 @@ public class Ticket {
         return  res;
     }
 
+    /** Write log to specific zone. 0 -> use, 1 -> issue, 2 -> plus */
+    public void writeLog(int currentTime, int type){
+        // get the content in 33 page
+        byte[] message = new byte[4];
+        utils.readPages(33, 1, message, 0);
+        int logCounter = byteArrayToInt(message);
+        int zoneNumber = logCounter%3;
+        byte[] dataMessage = intToByteArray(currentTime);
+        byte[] timeMessage = intToByteArray(type);
+        utils.writePages(dataMessage, 0, (zoneNumber*2+34), 1);
+        utils.writePages(timeMessage, 0, (zoneNumber*2+35), 1);
+        utils.writePages(intToByteArray(logCounter+1),0, 33, 1);
+    }
+
+    /** Get the time of latest logtime */
+    public int getLogTime(){
+        byte[] message = new byte[4];
+        utils.readPages(33, 1, message, 0);
+        int latestLog = byteArrayToInt(message);
+
+        byte[] latestTime = new byte[4];
+        utils.readPages(((latestLog-1)%3)*2+34, 1, latestTime, 0);
+        return byteArrayToInt(latestTime);
+    }
+
     /**
      * Issue new tickets
      *
@@ -308,7 +333,6 @@ public class Ticket {
             int versionNumber = getVersionNumber();
             if(versionNumber == 0){
                 utils.writePages(passHash, 0, 44, 4);
-                setProtectedRange();
                 writeVersionNumber(5);
             } else {
                 infoToShow = "Wrong card";
@@ -324,18 +348,24 @@ public class Ticket {
 
         int maxRidesNumber = getMaxRidesNumber();
         int counter = getCounter();
+        if(counter%2 != 0) {flag = false;}
+        int currentTime = (int)(System.currentTimeMillis()/1000);
 
         /** Initialize the card */
         if (!checkValidationTime() || (maxRidesNumber == counter)){
+            setProtectedRange();
             writeMaxRidesNumber(maxRidesNumber + 5);
             writeValidationTime(120);
-
             writeHashMac("", counter, flag);
+
+            writeLog(currentTime, 1);
             message = "The card has been initialized";
         } else { // add 5 more rides number
             int beginTime = getBeginTime();
             writeMaxRidesNumber(maxRidesNumber + 5);
             writeHashMac(beginTime+"", counter, flag);
+
+            writeLog(currentTime, 2);
             message = "5 more rides have been added";
         }
 
@@ -353,9 +383,8 @@ public class Ticket {
         boolean res;
         boolean flag = true;
         String message = "--";
-        int maxRidesNumber = getMaxRidesNumber();
+
         byte[] passHash = getHash();
-        int beginTime = getBeginTime();
 
 
         // Authenticate
@@ -365,22 +394,39 @@ public class Ticket {
             infoToShow = "Authentication failed";
             return false;
         }
-        
+
+        int maxRidesNumber = getMaxRidesNumber();
+        int beginTime = getBeginTime();
+
         int counter = getCounter();
         if(counter%2 != 0) {flag = false;}
         if (checkHashMac("", counter, flag))
         {
+            int validationTime = getValidationTime();
+            if (validationTime > 10000 || maxRidesNumber > 100){
+                message = "Wired Card!";
+            } else {
+                message = "Remain: 5";
+            }
+
             int expectedBeginTime = (int)(System.currentTimeMillis()/1000);
             writeBeginTime(expectedBeginTime);
             writeHashMac(expectedBeginTime+"",counter + 1, !flag);
             increaseCounter();
-            message = "Remain: 5";
+            writeLog(expectedBeginTime,0 );
         } else if(checkHashMac(beginTime+"", counter, flag)) {
             if (checkValidationTime()) {
                 counter = getCounter();
                 if(maxRidesNumber > counter) {
-                    message = "Remain: " + (maxRidesNumber - counter);
+                    int currentTime = (int)(System.currentTimeMillis()/1000);
+                    int timeGap = currentTime - getLogTime();
+                    if(timeGap < 2){
+                        message = "Too fast tap! Maybe Danger";
+                    }else{
+                        message = "Remain: " + (maxRidesNumber - counter);
+                    }
                     writeHashMac(beginTime+"",counter + 1, !flag);
+                    writeLog(currentTime, 0);
                     increaseCounter();
                 } else  {
                     infoToShow = "There is no more rides";
