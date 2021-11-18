@@ -1,5 +1,7 @@
 package com.ticketapp.auth.ticket;
 
+import android.icu.text.IDNA;
+
 import com.ticketapp.auth.R;
 import com.ticketapp.auth.app.main.TicketActivity;
 import com.ticketapp.auth.app.ulctools.Commands;
@@ -34,7 +36,7 @@ public class Ticket {
     private final Boolean isValid = false;
     private final int remainingUses = 0;
     private final int expiryTime = 0;
-    private String masterKey = "Hack me if you can";
+
 
     private static String infoToShow = "-"; // Use this to show messages
 
@@ -138,6 +140,23 @@ public class Ticket {
         return time;
     }
 
+    /** Write begin time to page 6 */
+    public boolean writeVersionNumber(int versionNumber) {
+        boolean result;
+        byte[] message = intToByteArray(versionNumber);
+        result = utils.writePages(message, 0, 7, 1);
+        return result;
+    }
+
+    /** Get begin time from page 6 */
+    public int getVersionNumber() {
+        byte[] message = new byte[4];
+        utils.readPages(7, 1, message, 0);
+        int versionNumber = byteArrayToInt(message);
+        return versionNumber;
+    }
+
+
     /** Judge whether the card is within validated time */
     public boolean checkValidationTime(){
         /** Get the current time */
@@ -148,7 +167,7 @@ public class Ticket {
     }
     public void setProtectedRange() {
         byte[] message = new byte[4];
-        message[0] = 20;
+        message[0] = 30;
         message[1] = 0;
         message[2] = 0;
         message[3] = 0;
@@ -177,14 +196,12 @@ public class Ticket {
         String passwordToHash = new String(authenticationKey) + UID;
         byte[] res = new byte[16];
         try {
-            // 为MD5创建MessageDigest实例
+
             MessageDigest md = MessageDigest.getInstance("MD5");
-            //添加密码字节以进行
+
             md.update(passwordToHash.getBytes());
             //Get the hash's bytes
             res = md.digest();
-            //This bytes[] has bytes in decimal format;
-
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -200,42 +217,59 @@ public class Ticket {
      */
     public boolean issue(int daysValid, int uses) throws GeneralSecurityException {
         boolean res;
-        String message = "";
+        String message = "--";
         int ridesNumber = getRidesNumber();
-        byte[] hash = getHash();
+        byte[] passHash = getHash();
+        int versionNUmber = getVersionNumber();
 
 
-        res = utils.authenticate(hash);
-        if (!res) {
-            Utilities.log("Authentication failed in issue()", true);
-            infoToShow = "Authentication failed";
-            return false;
+        /** Initialize the card */
+        if(versionNUmber == 0){
+            if(utils.authenticate(defaultAuthenticationKey)){
+                utils.writePages(passHash, 0, 44, 4);
+                setProtectedRange();
+                writeVersionNumber(5);
+            } else {
+                infoToShow = "Wrong card";
+                return false;
+            }
+        } else {
+            if (!utils.authenticate(passHash)){
+                setProtectedRange();
+                infoToShow = "Authentication failed!";
+                return false;
+            }
         }
-        utils.writePages(hash, 0, 44, 4);
 
-
-//        if (!checkValidationTime() || (ridesNumber == 0)){
-//            message = "The card has been initialized";
-//            setProtectedRange();
-//            writeRidesNumber(5);
-//            writeValidationTime(120);
-//        } else {
-//            message = "5 more rides have been added";
-//            writeRidesNumber(ridesNumber+5);
+//        /** Initialize the card's key */
+//        res = utils.authenticate(passHash);
+//        if (!res) {
+//            if(utils.authenticate(defaultAuthenticationKey)) {
+//                utils.writePages(passHash, 0, 44, 4);
+//                infoToShow = "success";
+//            } else {
+//                infoToShow = "Authentication failed!";
+//                return false;
+//            }
 //        }
 
+        if (!checkValidationTime() || (ridesNumber == 0)){
+            message = "The card has been initialized";
+            setProtectedRange();
+            writeRidesNumber(5);
+            writeValidationTime(120);
+        } else {
+            message = "5 more rides have been added";
+            writeRidesNumber(ridesNumber+5);
+        }
 
-        infoToShow = "message";
-        // Example of writing:
-        //byte[] message = "info".getBytes();
-        //res = utils.writePages(message, 0, 6, 1);
-        // Set information to show for the user
+//        //Set information to show for the user
 //        if (res) {
 //            infoToShow = message;
 //        } else {
 //            infoToShow = "Failed to write";
 //        }
-
+        infoToShow = message;
         return true;
     }
 
@@ -247,8 +281,9 @@ public class Ticket {
     public boolean use() throws GeneralSecurityException {
         boolean res;
         int ridesNumber = getRidesNumber();
+        byte[] passHash = getHash();
         // Authenticate
-        res = utils.authenticate(authenticationKey);
+        res = utils.authenticate(passHash);
         if (!res) {
             Utilities.log("Authentication failed in issue()", true);
             infoToShow = "Authentication failed";
@@ -269,10 +304,6 @@ public class Ticket {
                 return false;
             }
         }
-
-//        // Example of reading:
-//        byte[] message = new byte[4];
-//        res = utils.readPages(6, 1, message, 0);
 
         // Set information to show for the user
         if (res) {
