@@ -121,8 +121,6 @@ public class Ticket {
         return time;
     }
 
-
-
     /** Write begin time to page 6 */
     public boolean writeBeginTime() {
         boolean result;
@@ -140,7 +138,7 @@ public class Ticket {
         return time;
     }
 
-    /** Write begin time to page 6 */
+    /** Write version number time to page 7 */
     public boolean writeVersionNumber(int versionNumber) {
         boolean result;
         byte[] message = intToByteArray(versionNumber);
@@ -156,6 +154,42 @@ public class Ticket {
         return versionNumber;
     }
 
+    /** Set the hash mac to page 8 */
+    public boolean writeHashMac(String beginTime){
+        // get hash value with length 42
+        String UID = getUID();
+        int validationTime = getValidationTime();
+        byte[] bytesArray = (UID + validationTime + beginTime).getBytes();
+        byte[] cont = macAlgorithm.generateMac(bytesArray);
+        // get the first 4
+        byte[] hashMac = new byte[4];
+        for(int i = 0; i<4; i++){
+            hashMac[i] = cont[i];
+        }
+        // write to page 8
+        boolean result;
+        result = utils.writePages(hashMac, 0, 8, 1);
+        return result;
+    }
+
+    /** Get the hash value from page 8 */
+    public boolean checkHashMac(String beginTime){
+        // Get the hash mac in the card
+        byte[] hashMacInCard = new byte[4];
+        utils.readPages(8, 1, hashMacInCard, 0);
+        // Calculate hash mac
+        String UID = getUID();
+        int validationTime = getValidationTime();
+        byte[] bytesArray = (UID + validationTime + beginTime).getBytes();
+        byte[] cont = macAlgorithm.generateMac(bytesArray);
+        // get the first 4
+        for(int i = 0; i<4; i++){
+            if(hashMacInCard[i] != cont[i]){
+                return false;
+            }
+        }
+        return true;
+    }
 
     /** Judge whether the card is within validated time */
     public boolean checkValidationTime(){
@@ -223,7 +257,7 @@ public class Ticket {
         int versionNUmber = getVersionNumber();
 
 
-        /** Initialize the card */
+        /** Judge whether the card is blank and authentication*/
         if(versionNUmber == 0){
             if(utils.authenticate(defaultAuthenticationKey)){
                 utils.writePages(passHash, 0, 44, 4);
@@ -234,41 +268,31 @@ public class Ticket {
                 return false;
             }
         } else {
-            if (!utils.authenticate(passHash)){
-                setProtectedRange();
+            boolean authentication = utils.authenticate(passHash);
+            if (!authentication){
                 infoToShow = "Authentication failed!";
                 return false;
             }
         }
-
-//        /** Initialize the card's key */
-//        res = utils.authenticate(passHash);
-//        if (!res) {
-//            if(utils.authenticate(defaultAuthenticationKey)) {
-//                utils.writePages(passHash, 0, 44, 4);
-//                infoToShow = "success";
-//            } else {
-//                infoToShow = "Authentication failed!";
-//                return false;
-//            }
-//        }
-
+        /** Initialize the card */
         if (!checkValidationTime() || (ridesNumber == 0)){
-            message = "The card has been initialized";
-            setProtectedRange();
             writeRidesNumber(5);
             writeValidationTime(120);
-        } else {
-            message = "5 more rides have been added";
+
+            writeHashMac("");
+            message = "The card has been initialized";
+        } else { // add 5 rides number
             writeRidesNumber(ridesNumber+5);
+            message = "5 more rides have been added";
         }
 
-//        //Set information to show for the user
-//        if (res) {
-//            infoToShow = message;
-//        } else {
-//            infoToShow = "Failed to write";
+//        byte[] passHash = getHash();
+//        utils.authenticate(passHash);
+//        writeHashMac("");
+//        if(checkHashMac("")){
+//            message = "Hash mac check success";
 //        }
+
         infoToShow = message;
         return true;
     }
@@ -280,8 +304,10 @@ public class Ticket {
      */
     public boolean use() throws GeneralSecurityException {
         boolean res;
+        String message = "--";
         int ridesNumber = getRidesNumber();
         byte[] passHash = getHash();
+        int beginTime = getBeginTime();
         // Authenticate
         res = utils.authenticate(passHash);
         if (!res) {
@@ -290,27 +316,42 @@ public class Ticket {
             return false;
         }
 
-        if (ridesNumber == 5){
+        if (checkHashMac(""))
+        {
             writeRidesNumber(ridesNumber-1);
             writeBeginTime();
-        } else if (ridesNumber == 0) {
-            infoToShow = "There is no more rides!";
-            return false;
-        } else {
-            if (checkValidationTime()){
-                writeRidesNumber(ridesNumber-1);
+            int beginTime2 = getBeginTime();
+            writeHashMac(beginTime2+"");
+        } else if(checkHashMac(beginTime+"")) {
+            if (checkValidationTime()) {
+                if(ridesNumber > 0) {
+                    writeRidesNumber(ridesNumber-1);
+                } else  {
+                    infoToShow = "There is no more rides";
+                    return false;
+                }
             } else {
                 infoToShow = "You card is expired";
                 return false;
             }
         }
 
-        // Set information to show for the user
-        if (res) {
-            infoToShow = "Read: success!";
-        } else {
-            infoToShow = "Failed to read";
-        }
+//        if (ridesNumber == 5){
+//            writeRidesNumber(ridesNumber-1);
+//            writeBeginTime();
+//        } else if (ridesNumber == 0) {
+//            infoToShow = "There is no more rides!";
+//            return false;
+//        } else {
+//            if (checkValidationTime()){
+//                writeRidesNumber(ridesNumber-1);
+//            } else {
+//                infoToShow = "You card is expired";
+//                return false;
+//            }
+//        }
+
+        infoToShow = message;
 
         return true;
     }
