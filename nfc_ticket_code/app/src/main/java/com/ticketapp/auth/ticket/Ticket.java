@@ -403,7 +403,7 @@ public class Ticket {
         if (checkHashMac("", counter, flag))
         {
             int validationTime = getValidationTime();
-            if (validationTime > 10000 || maxRidesNumber > 100){
+            if (validationTime > 100000 || maxRidesNumber > 10000){
                 message = "Wired Card!";
             } else {
                 message = "Remain: 5";

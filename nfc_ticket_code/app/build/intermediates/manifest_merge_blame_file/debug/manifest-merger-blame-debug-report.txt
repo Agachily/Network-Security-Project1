@@ -6,99 +6,99 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="14"
-8-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml
+8-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml
 9        android:targetSdkVersion="26" />
-9-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml
+9-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml
 10
 11    <uses-permission android:name="android.permission.NFC" />
-11-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:7:5-62
-11-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:7:22-59
+11-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:7:5-62
+11-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:7:22-59
 12    <uses-permission android:name="android.permission.VIBRATE" />
-12-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:8:5-66
-12-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:8:22-63
+12-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:8:5-66
+12-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:8:22-63
 13
 14    <uses-feature
-14-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:10:5-12:35
+14-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:10:5-12:35
 15        android:name="android.hardware.nfc"
-15-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:11:9-44
+15-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:11:9-44
 16        android:required="true" />
-16-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:12:9-32
+16-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:12:9-32
 17
 18    <application
-18-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:14:5-45:19
+18-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:14:5-45:19
 19        android:allowBackup="true"
-19-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:15:9-35
+19-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:15:9-35
 20        android:debuggable="true"
 21        android:icon="@drawable/ic_launcher"
-21-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:16:9-45
+21-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:16:9-45
 22        android:label="@string/app_name"
-22-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:17:9-41
+22-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:17:9-41
 23        android:testOnly="true"
 24        android:theme="@style/AppTheme" >
-24-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:18:9-40
+24-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:18:9-40
 25        <activity
-25-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:19:9-34:20
+25-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:19:9-34:20
 26            android:name="com.ticketapp.auth.app.main.TicketActivity"
-26-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:20:13-70
+26-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:20:13-70
 27            android:label="@string/app_name"
-27-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:21:13-45
+27-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:21:13-45
 28            android:screenOrientation="portrait" >
-28-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:22:13-49
+28-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:22:13-49
 29            <intent-filter>
-29-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:23:13-28:29
+29-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:23:13-28:29
 30                <action android:name="android.intent.action.MAIN" />
-30-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:24:17-69
-30-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:24:25-66
+30-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:24:17-69
+30-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:24:25-66
 31
 32                <category android:name="android.intent.category.LAUNCHER" />
-32-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:27:17-77
-32-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:27:27-74
+32-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:27:17-77
+32-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:27:27-74
 33            </intent-filter>
 34            <intent-filter>
-34-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:29:13-104
+34-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:29:13-104
 35                <action android:name="android.nfc.action.TECH_DISCOVERED" />
-35-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:29:28-88
-35-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:29:36-85
+35-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:29:28-88
+35-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:29:36-85
 36            </intent-filter>
 37
 38            <meta-data
-38-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:31:13-33:59
+38-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:31:13-33:59
 39                android:name="android.nfc.action.TECH_DISCOVERED"
-39-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:32:17-66
+39-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:32:17-66
 40                android:resource="@xml/nfc_tech_filter" />
-40-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:33:17-56
+40-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:33:17-56
 41        </activity>
 42
 43        <provider
-43-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:36:9-44:20
+43-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:36:9-44:20
 44            android:name="android.support.v4.content.FileProvider"
-44-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:37:13-67
+44-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:37:13-67
 45            android:authorities="com.ticketapp.auth.app.fragments.ArchiveFragment"
-45-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:38:13-83
+45-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:38:13-83
 46            android:exported="false"
-46-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:39:13-37
+46-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:39:13-37
 47            android:grantUriPermissions="true" >
-47-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:40:13-47
+47-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:40:13-47
 48            <meta-data
-48-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:41:13-43:52
+48-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:41:13-43:52
 49                android:name="android.support.FILE_PROVIDER_PATHS"
-49-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:42:17-67
+49-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:42:17-67
 50                android:resource="@xml/my_paths" />
-50-->/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:43:17-49
+50-->/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/src/main/AndroidManifest.xml:43:17-49
 51        </provider>
 52
 53        <meta-data
-53-->[com.android.support:support-v4:26.1.0] /Users/kun/.gradle/caches/transforms-3/e1a6e0762d33d33c47a34c9d891884c3/transformed/support-v4-26.1.0/AndroidManifest.xml:26:9-28:38
+53-->[com.android.support:support-v4:26.1.0] /Users/zetong/.gradle/caches/transforms-3/e1a6e0762d33d33c47a34c9d891884c3/transformed/support-v4-26.1.0/AndroidManifest.xml:26:9-28:38
 54            android:name="android.support.VERSION"
-54-->[com.android.support:support-v4:26.1.0] /Users/kun/.gradle/caches/transforms-3/e1a6e0762d33d33c47a34c9d891884c3/transformed/support-v4-26.1.0/AndroidManifest.xml:27:13-51
+54-->[com.android.support:support-v4:26.1.0] /Users/zetong/.gradle/caches/transforms-3/e1a6e0762d33d33c47a34c9d891884c3/transformed/support-v4-26.1.0/AndroidManifest.xml:27:13-51
 55            android:value="26.1.0" />
-55-->[com.android.support:support-v4:26.1.0] /Users/kun/.gradle/caches/transforms-3/e1a6e0762d33d33c47a34c9d891884c3/transformed/support-v4-26.1.0/AndroidManifest.xml:28:13-35
+55-->[com.android.support:support-v4:26.1.0] /Users/zetong/.gradle/caches/transforms-3/e1a6e0762d33d33c47a34c9d891884c3/transformed/support-v4-26.1.0/AndroidManifest.xml:28:13-35
 56        <meta-data
-56-->[android.arch.lifecycle:runtime:1.0.0] /Users/kun/.gradle/caches/transforms-3/719697c9a25d0130e00f3b7bf77abcbe/transformed/runtime-1.0.0/AndroidManifest.xml:25:9-27:47
+56-->[android.arch.lifecycle:runtime:1.0.0] /Users/zetong/.gradle/caches/transforms-3/719697c9a25d0130e00f3b7bf77abcbe/transformed/runtime-1.0.0/AndroidManifest.xml:25:9-27:47
 57            android:name="android.arch.lifecycle.VERSION"
-57-->[android.arch.lifecycle:runtime:1.0.0] /Users/kun/.gradle/caches/transforms-3/719697c9a25d0130e00f3b7bf77abcbe/transformed/runtime-1.0.0/AndroidManifest.xml:26:13-58
+57-->[android.arch.lifecycle:runtime:1.0.0] /Users/zetong/.gradle/caches/transforms-3/719697c9a25d0130e00f3b7bf77abcbe/transformed/runtime-1.0.0/AndroidManifest.xml:26:13-58
 58            android:value="27.0.0-SNAPSHOT" />
-58-->[android.arch.lifecycle:runtime:1.0.0] /Users/kun/.gradle/caches/transforms-3/719697c9a25d0130e00f3b7bf77abcbe/transformed/runtime-1.0.0/AndroidManifest.xml:27:13-44
+58-->[android.arch.lifecycle:runtime:1.0.0] /Users/zetong/.gradle/caches/transforms-3/719697c9a25d0130e00f3b7bf77abcbe/transformed/runtime-1.0.0/AndroidManifest.xml:27:13-44
 59    </application>
 60
 61</manifest>
