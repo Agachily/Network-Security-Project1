@@ -396,7 +396,7 @@ public class Ticket {
 
         /** If flag is true write hashMac to page 8. Otherwise, if the flag is false, write hashMac to page 18 */
         if(counter%2 != 0) {flag = false;}
-        /** check previous hash mac to prevent M*/
+        /** check previous hash mac to prevent Man in the middle attacks*/
         if (checkHashMac("", counter, flag))
         {
             int validationTime = getValidationTime();
