@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/zetong/Onedrive/MyCourses/Aalto CS-E4300 Network Security/Network-Security-Project1/nfc_ticket_code/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-zu/values-zu.xml",
+            "outputFile": "/Users/kun/Desktop/Network-Security-Project1/nfc_ticket_code/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-zu/values-zu.xml",
             "map": [
                 {
-                    "source": "/Users/zetong/.gradle/caches/transforms-3/597637047f865e36ca7d69d40c03462e/transformed/support-compat-26.1.0/res/values-zu/values-zu.xml",
+                    "source": "/Users/kun/.gradle/caches/transforms-3/597637047f865e36ca7d69d40c03462e/transformed/support-compat-26.1.0/res/values-zu/values-zu.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

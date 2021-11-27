@@ -88,8 +88,8 @@ public class Ticket {
         };
     }
 
-    /** Set aax number of rides to specific page */
-    public boolean writeMaxRidesNumber(int number){
+    /** Set a max number of rides to specific page */
+    private boolean writeMaxRidesNumber(int number){
         boolean result;
         byte[] message = intToByteArray(number);
         result = utils.writePages(message, 0, 4, 1);
@@ -98,7 +98,7 @@ public class Ticket {
     }
 
     /** Get rides number from specific page */
-    public int getMaxRidesNumber(){
+    private int getMaxRidesNumber(){
         byte[] message = new byte[4];
         utils.readPages(4, 1, message, 0);
 
@@ -106,9 +106,8 @@ public class Ticket {
         return number;
     }
 
-
     /** Set validity time to page 5*/
-    public boolean writeValidationTime(int sec) {
+    private boolean writeValidationTime(int sec) {
         boolean result;
         byte[] message = intToByteArray(sec);
         result = utils.writePages(message, 0, 5, 1);
@@ -117,7 +116,7 @@ public class Ticket {
     }
 
     /** Get the validation time from page 5*/
-    public int getValidationTime(){
+    private int getValidationTime(){
         byte[] message = new byte[4];
         utils.readPages(5, 1, message, 0);
 
@@ -125,22 +124,18 @@ public class Ticket {
         return time;
     }
 
-
     /** Write begin time to page 6 */
-    public boolean writeBeginTime(int time) {
+    private boolean writeBeginTime(int time) {
         boolean result;
-
         byte[] message = intToByteArray(time);
-
         result = utils.writePages(message, 0, 6, 1);
 
         return result;
     }
 
     /** Get begin time from page 6 */
-    public int getBeginTime() {
+    private int getBeginTime() {
         byte[] message = new byte[4];
-
         utils.readPages(6, 1, message, 0);
 
         int time = byteArrayToInt(message);
@@ -148,17 +143,16 @@ public class Ticket {
     }
 
     /** Write version number time to page 7 */
-    public boolean writeVersionNumber(int versionNumber) {
+    private boolean writeVersionNumber(int versionNumber) {
         boolean result;
         byte[] message = intToByteArray(versionNumber);
-
         result = utils.writePages(message, 0, 7, 1);
 
         return result;
     }
 
     /** Get VersionNumber from page 7 */
-    public int getVersionNumber() {
+    private int getVersionNumber() {
         byte[] message = new byte[4];
 
         utils.readPages(7, 1, message, 0);
@@ -167,8 +161,8 @@ public class Ticket {
         return versionNumber;
     }
 
-    /** Calculate hash mac */
-    public byte[] CalculateHashMac(String beginTime, int expectedCounter) {
+    /** Calculate hash mac use UID, validationTime, beginTime, maxRidesNumber and counter */
+    private byte[] CalculateHashMac(String beginTime, int expectedCounter) {
         // get hash value with length 42
         String UID = getUID();
         int validationTime = getValidationTime();
@@ -182,8 +176,9 @@ public class Ticket {
         }
         return hashMac;
     }
+
     /** Set the hash mac to page 8 */
-    public boolean writeHashMac(String beginTime, int expectedCounter ,boolean flag){
+    private boolean writeHashMac(String beginTime, int expectedCounter ,boolean flag){
         // get hashmac
         byte[] hashMac = CalculateHashMac(beginTime, expectedCounter);
 
@@ -198,7 +193,7 @@ public class Ticket {
     }
 
     /** Get the hash value from page 8 */
-    public boolean checkHashMac(String beginTime,int expectedCounter, boolean flag){
+    private boolean checkHashMac(String beginTime,int expectedCounter, boolean flag){
         // Get the hash mac in the card
         byte[] hashMacInCard = new byte[4];
         if(flag) {
@@ -217,14 +212,16 @@ public class Ticket {
     }
 
     /** Judge whether the card is within validated time */
-    public boolean checkValidationTime(){
+    private boolean checkValidationTime(){
         /** Get the current time */
         int currentTime = (int)(System.currentTimeMillis()/1000);
         int beginTime = getBeginTime();
         int validationTime = getValidationTime();
         return (validationTime >= (currentTime-beginTime));
     }
-    public void setProtectedRange() {
+
+    /** Set protect page from 3 to the end */
+    private void setProtectedRange() {
         byte[] message = new byte[4];
         message[0] = 48;
         message[1] = 0;
@@ -234,7 +231,7 @@ public class Ticket {
     }
 
     /** Get the uid from page 1 */
-    public String getUID(){
+    private String getUID(){
         byte[] message1 = new byte[4];
         byte[] message2 = new byte[4];
         byte[] result = new byte[7];
@@ -250,7 +247,7 @@ public class Ticket {
     }
 
     /** Increase the counter */
-    public boolean increaseCounter(){
+    private boolean increaseCounter(){
         byte[] message = new byte[4];
         message[0] = 1;
         message[1] = 0;
@@ -260,8 +257,8 @@ public class Ticket {
         return res;
     }
 
-    /** */
-    public int getCounter() {
+    /** Get the counter*/
+    private int getCounter() {
         byte[] message = new byte[4];
         utils.readPages(41, 1, message, 0);
         byte[] reverseMessage = new byte[4];
@@ -273,14 +270,12 @@ public class Ticket {
     }
 
     /** Get the hashcode according to the UID and master key */
-    public byte[] getHash() {
+    private byte[] getHash() {
         String UID = getUID();
         String passwordToHash = new String(authenticationKey) + UID;
         byte[] res = new byte[16];
         try {
-
             MessageDigest md = MessageDigest.getInstance("MD5");
-
             md.update(passwordToHash.getBytes());
             //Get the hash's bytes
             res = md.digest();
@@ -293,11 +288,12 @@ public class Ticket {
     }
 
     /** Write log to specific zone. 0 -> use, 1 -> issue, 2 -> plus */
-    public void writeLog(int currentTime, int type){
+    private void writeLog(int currentTime, int type){
         // get the content in 33 page
         byte[] message = new byte[4];
         utils.readPages(33, 1, message, 0);
         int logCounter = byteArrayToInt(message);
+        /** Log the last 3 information to page 34-35, 36-37, 38-39 */
         int zoneNumber = logCounter%3;
         byte[] dataMessage = intToByteArray(currentTime);
         byte[] timeMessage = intToByteArray(type);
@@ -307,7 +303,7 @@ public class Ticket {
     }
 
     /** Get the time of latest logtime */
-    public int getLogTime(){
+    private int getLogTime(){
         byte[] message = new byte[4];
         utils.readPages(33, 1, message, 0);
         int latestLog = byteArrayToInt(message);
@@ -323,9 +319,8 @@ public class Ticket {
      * TODO: IMPLEMENT
      */
     public boolean issue(int daysValid, int uses) throws GeneralSecurityException {
-        boolean res;
-        boolean flag = true;
         String message = "--";
+        // get password Hash
         byte[] passHash = getHash();
 
         /** Judge whether the card is blank and authentication*/
@@ -346,21 +341,24 @@ public class Ticket {
             }
         }
 
+        boolean flag = true;
         int maxRidesNumber = getMaxRidesNumber();
         int counter = getCounter();
-        if(counter%2 != 0) {flag = false;}
         int currentTime = (int)(System.currentTimeMillis()/1000);
 
+        /** When the flag is true write hashMac to page 8. Otherwise, the flag is false, write hashMac to page 18 */
+        if(counter%2 != 0) {flag = false;}
         /** Initialize the card */
         if (!checkValidationTime() || (maxRidesNumber == counter)){
             setProtectedRange();
-            writeMaxRidesNumber(maxRidesNumber + 5);
+            writeMaxRidesNumber(counter + 5);
             writeValidationTime(120);
             writeHashMac("", counter, flag);
 
             writeLog(currentTime, 1);
             message = "The card has been initialized";
-        } else { // add 5 more rides number
+        } else {
+            /** add 5 more rides number, when the card is not expired*/
             int beginTime = getBeginTime();
             writeMaxRidesNumber(maxRidesNumber + 5);
             writeHashMac(beginTime+"", counter, flag);
@@ -368,7 +366,6 @@ public class Ticket {
             writeLog(currentTime, 2);
             message = "5 more rides have been added";
         }
-
 
         infoToShow = message;
         return true;
@@ -381,11 +378,8 @@ public class Ticket {
      */
     public boolean use() throws GeneralSecurityException {
         boolean res;
-        boolean flag = true;
         String message = "--";
-
         byte[] passHash = getHash();
-
 
         // Authenticate
         res = utils.authenticate(passHash);
@@ -397,33 +391,37 @@ public class Ticket {
 
         int maxRidesNumber = getMaxRidesNumber();
         int beginTime = getBeginTime();
-
+        boolean flag = true;
         int counter = getCounter();
+
+        /** If flag is true write hashMac to page 8. Otherwise, if the flag is false, write hashMac to page 18 */
         if(counter%2 != 0) {flag = false;}
+        /** check previous hash mac to prevent M*/
         if (checkHashMac("", counter, flag))
         {
             int validationTime = getValidationTime();
-            if (validationTime > 100000 || maxRidesNumber > 10000){
+            if (validationTime > 100000){
                 message = "Wired Card!";
             } else {
-                message = "Remain: 5";
+                message = "Remain： " + (maxRidesNumber - counter - 1);
             }
 
-            int expectedBeginTime = (int)(System.currentTimeMillis()/1000);
-            writeBeginTime(expectedBeginTime);
-            writeHashMac(expectedBeginTime+"",counter + 1, !flag);
+            int BeginTime2 = (int)(System.currentTimeMillis()/1000);
+            writeBeginTime(BeginTime2);
+            writeHashMac(BeginTime2+"",counter + 1, !flag);
+            writeLog(BeginTime2,0 );
             increaseCounter();
-            writeLog(expectedBeginTime,0 );
         } else if(checkHashMac(beginTime+"", counter, flag)) {
             if (checkValidationTime()) {
                 counter = getCounter();
                 if(maxRidesNumber > counter) {
                     int currentTime = (int)(System.currentTimeMillis()/1000);
+                    /** If the user tap the card twice within 2 seconds, remind the user and operator */
                     int timeGap = currentTime - getLogTime();
                     if(timeGap < 2){
                         message = "Too fast tap! Maybe Danger";
-                    }else{
-                        message = "Remain: " + (maxRidesNumber - counter);
+                    } else {
+                        message = "Remain: " + (maxRidesNumber - counter - 1);
                     }
                     writeHashMac(beginTime+"",counter + 1, !flag);
                     writeLog(currentTime, 0);
@@ -437,7 +435,6 @@ public class Ticket {
                 return false;
             }
         }
-
 
         infoToShow = message;
 
